@@ -14,8 +14,7 @@ class Game
   def play(say_intro=true)
     intro if say_intro
     deal
-    blackjack(player_hand)
-    blackjack(dealer_hand)
+    check_blackjack
     hit_stay
     dealer_reveal
     dealer_hit_stay
@@ -44,17 +43,17 @@ class Game
   end
 
   def hit_stay
-    puts "Sorry, you busted #{rematch}" if bust(player_hand)
-    puts "Would you like to hit (plus 1 card) or stay where you are?" if !bust(player_hand)
+    if !bust(player_hand) && !score_21(player_hand)
+      puts "Would you like to hit (plus 1 card) or stay where you are?"
       resp = gets.chomp&.downcase[0]
-        until resp == "s" || bust(player_hand) || total_value(player_hand) == 21
-          self.player_hand += game_deck.hit
-          puts "You were dealt the #{player_hand[-1]}"
-          puts "You now sit at #{total_value(player_hand)}"
-          puts "Would you like to hit or stay?" if !bust(player_hand) && total_value(player_hand) < 21
-          puts "Sorry, you busted" if bust(player_hand)
-          resp = gets.chomp&.downcase[0] unless total_value(player_hand) >= 21
-        end
+    end
+    until resp == "s" || bust(player_hand) || score_21(player_hand)
+      self.player_hand += game_deck.plus_1
+      puts "You were dealt the #{player_hand[-1]}"
+      puts "You now sit at #{total_value(player_hand)}"
+      puts "Would you like to hit or stay?" if !busted(player_hand)
+      resp = gets.chomp&.downcase[0] if !busted(player_hand) && !score_21(player_hand)
+    end
   end
 
   def dealer_reveal
@@ -63,16 +62,16 @@ class Game
 
   def dealer_hit_stay
     until total_value(dealer_hand) >= 16
-      self.dealer_hand += game_deck.hit
-      puts "Dealer draws a #{dealer_hand[-1]} for a new total of #{total_value(dealer_hand)}"
+      self.dealer_hand += game_deck.plus_1
+      puts "Dealer draws the #{dealer_hand[-1]} for a total of #{total_value(dealer_hand)}"
     end
     bust(dealer_hand)
   end
 
   def determine_winner
-    if total_value(dealer_hand) > 21 || total_value(player_hand) > total_value(dealer_hand) && total_value(player_hand) < 22
+    if busted(dealer_hand) || win_condition(player_hand, dealer_hand) || tied_hand(player_hand, dealer_hand)
       puts "You win!"
-    elsif total_value(player_hand) > 21 || total_value(player_hand) < total_value(dealer_hand) && total_value(dealer_hand) < 22
+    elsif busted(player_hand) || win_condition(dealer_hand, player_hand) || tied_hand(dealer_hand, player_hand)
       puts "Dealer wins!"
     else
       puts "It's a push"
@@ -83,11 +82,27 @@ class Game
   def bust(hand)
     if total_value(hand) > 21
       true
-      puts "Busted!"
+      puts "Bust!"
       determine_winner
     else
       false
     end
+  end
+
+  def busted(hand)
+    total_value(hand) > 21
+  end
+
+  def score_21(hand)
+    total_value(hand) == 21
+  end
+
+  def win_condition(hand1, hand2)
+    hand1.length >= 6 && total_value(hand1) <= 21 || total_value(hand1) > total_value(hand2) && !busted(hand1)
+  end
+
+  def tied_hand(hand1, hand2)
+    hand1.length > hand2.length && total_value(hand1) == total_value(hand2)
   end
 
   def blackjack(hand)
@@ -96,6 +111,11 @@ class Game
       puts "Blackjack!"
       determine_winner
     end
+  end
+
+  def check_blackjack
+    blackjack(player_hand)
+    blackjack(dealer_hand)
   end
 
   def rematch

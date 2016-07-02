@@ -24,7 +24,7 @@ class Deck
     deck.shift(2)
   end
 
-  def hit
+  def plus_1
     deck.shift(1)
   end
 
