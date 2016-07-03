@@ -1,12 +1,13 @@
 require './card.rb'
 require './deck.rb'
+require './shoe.rb'
 
 class Game
 
   attr_accessor :game_deck, :player_hand, :dealer_hand
 
   def initialize
-    @game_deck = Deck.new
+    @game_deck = Shoe.new
     @player_hand = []
     @dealer_hand = []
   end
@@ -68,17 +69,6 @@ class Game
     bust(dealer_hand)
   end
 
-  def determine_winner
-    if busted(dealer_hand) || win_condition(player_hand, dealer_hand) || tied_hand(player_hand, dealer_hand)
-      puts "You win!"
-    elsif busted(player_hand) || win_condition(dealer_hand, player_hand) || tied_hand(dealer_hand, player_hand)
-      puts "Dealer wins!"
-    else
-      puts "It's a push"
-    end
-    rematch
-  end
-
   def bust(hand)
     if total_value(hand) > 21
       true
@@ -111,6 +101,17 @@ class Game
       puts "Blackjack!"
       determine_winner
     end
+  end
+
+  def determine_winner
+    if busted(dealer_hand) || win_condition(player_hand, dealer_hand) || tied_hand(player_hand, dealer_hand)
+      puts "You win!"
+    elsif busted(player_hand) || win_condition(dealer_hand, player_hand) || tied_hand(dealer_hand, player_hand)
+      puts "Dealer wins!"
+    else
+      puts "It's a push"
+    end
+    rematch
   end
 
   def check_blackjack

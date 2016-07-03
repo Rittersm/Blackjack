@@ -20,12 +20,4 @@ class Deck
     end
   end
 
-  def deal_hand
-    deck.shift(2)
-  end
-
-  def plus_1
-    deck.shift(1)
-  end
-
 end
