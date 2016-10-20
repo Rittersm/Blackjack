@@ -83,7 +83,7 @@ class Game
   def bust(hand)
     if total_value(hand) > 21
       true
-      puts "Busted!"
+      puts "You Busted!"
       determine_winner
     else
       false
